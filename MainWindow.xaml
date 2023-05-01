@@ -1,0 +1,41 @@
+﻿<Window x:Class="game_life.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:game_life"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        SizeChanged="Window_SizeChanged">
+    <Grid Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Name="controlUi" Grid.Row="0"   Grid.Column="1">
+            <Label Name="speedStatus" HorizontalAlignment="Center">Скорость: 1</Label>
+            <Slider Name="setSpeed" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" ValueChanged="setSpeed_ValueChanged" SmallChange="1" Value="1"/>
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center">ширина</Label>
+                <TextBox Name="areaWidth" Grid.Row="1" Grid.Column="0"></TextBox>
+                <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">высота</Label>
+                <TextBox Name="areaHeight" Grid.Row="1" Grid.Column="1"></TextBox>
+                <Button Name="updateSize" Click="updateSize_Click" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">Установить</Button>
+            </Grid>
+            <Button Name="btnStart" Click="btnStart_Click" Margin="0,20,0,0">Старт</Button>
+            
+        </StackPanel>
+    </Grid>
+</Window>
