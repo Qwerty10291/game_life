@@ -97,3 +97,4 @@ jobs:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
         asset_path: bin/Release/game_life.exe
         asset_name: game
+        asset_content_type: application/vnd.microsoft.portable-executable
