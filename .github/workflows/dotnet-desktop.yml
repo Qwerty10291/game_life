@@ -83,7 +83,7 @@ jobs:
       with:
         name: test
         path: bin/Release/
-    - uses: actions/create_release@v1
+    - uses: actions/create-release@v1
       id: create-release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
