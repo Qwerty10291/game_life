@@ -17,14 +17,14 @@ namespace game_life
         public MainWindow()
         {
             InitializeComponent();
-            game = new GameLife(6, 6);
+            game = new GameLife(100, 100);
             gameWidget = new GameLifeUi(game.Area, Brushes.White, Brushes.Black);
             mainGrid.Children.Add(gameWidget);
             Grid.SetColumn(gameWidget, 0);
             Grid.SetRow(gameWidget, 0);
             gameWidget.CellUpdate = GameCellClicked;
 
-            timer = new DispatcherTimer();
+            timer = new DispatcherTimer(DispatcherPriority.Render);
             timer.Tick += new EventHandler(timer_Tick);
             timer.Interval = new TimeSpan(1000000);
         }
@@ -76,17 +76,7 @@ namespace game_life
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
-            if (!isRunning)
-            {
-                btnStart.Content = "Стоп";
-                timer.Start();
-                isRunning = true;
-            } else
-            {
-                btnStart.Content = "Старт";
-                timer.Stop();
-                isRunning = false;
-            }
+            startStop();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -95,18 +85,62 @@ namespace game_life
         }
 
         private void timer_Tick(object sender, EventArgs e)
-
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
             game.Update();
-            watch.Stop();
-            Trace.WriteLine(watch.ElapsedMilliseconds);
             gameWidget.Draw();
             if (game.IsStable)
             {
                 btnStart.Content = "Старт";
                 timer.Stop();
                 isRunning = false;
+            }
+        }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isRunning)
+            {
+                game.Area.Clear();
+                gameWidget.Draw();
+            }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Space:
+                    startStop();
+                    break;
+                case Key.Delete:
+                    game.Area.Clear();
+                    gameWidget.Draw();
+                    break;
+            }
+        }
+
+        private void startStop()
+        {
+            if (!isRunning)
+            {
+                btnStart.Content = "Стоп";
+                timer.Start();
+                isRunning = true;
+            }
+            else
+            {
+                btnStart.Content = "Старт";
+                timer.Stop();
+                isRunning = false;
+            }
+        }
+
+        private void btnFillRandom_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isRunning)
+            {
+                game.Area.FillRandom();
+                gameWidget.Draw();
             }
         }
     }

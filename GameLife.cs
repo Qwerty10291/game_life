@@ -14,6 +14,7 @@ namespace game_life
     public class GameLifeArea
     {
         private List<List<CellType>> area;
+        private List<List<int>> neighbors;
         private int aliveCount = 0; 
         public int AliveCount { get => aliveCount; }
         public List<CellType> this[int key]
@@ -29,47 +30,37 @@ namespace game_life
         public int Height
         {
             get => area.Count;
-            set { SetHeight(value); }
+            set { SetHeight(value); } 
         }
 
         public GameLifeArea(int width, int height)
         {
-            area = new List<List<CellType>>(height);
-            for (int i = 0; i < height; i++)
-            {
-                area.Add(new List<CellType>(Enumerable.Range(0, width).Select(x => CellType.Dead)));
-            }
+            initArea(width, height);
         }
 
         public CellType CellAt(int x, int y)
         {
-            if (x < 0)
-            {
-                x = Width + x;
-            }
-            else if (x >= Width)
-            {
-                x -= Width;
-            }
-            if (y < 0)
-            {
-                y = Height + y;
-            }
-            else if (y >= Height)
-            {
-                y -= Height;
-            }
-
+            
+            (x, y) = checkCoords(x, y);
             return area[y][x];
         }
 
         public void SetCell(CellType cell, int x, int y)
         {
-            if (cell == CellType.Alive)
-                aliveCount += 1;
-            else if (cell == CellType.Dead)
-                aliveCount -= 1;
+            var prevCell = area[y][x];
             area[y][x] = cell;
+            if (cell == CellType.Alive)
+            {
+                aliveCount += 1;
+                if (prevCell != cell)
+                    updateNeighbors(x, y);
+            }
+            else if (cell == CellType.Dead)
+            {
+                aliveCount -= 1;
+                if (prevCell != cell)
+                    updateNeighbors(x, y);
+            }
         }
 
         public bool IsAlive(int x, int y)
@@ -79,14 +70,7 @@ namespace game_life
 
         public int NeighborsCount(int x, int y)
         {
-            return boolToInt(IsAlive(x - 1, y - 1)) +
-                boolToInt(IsAlive(x, y - 1)) +
-                boolToInt(IsAlive(x + 1, y - 1)) +
-                boolToInt(IsAlive(x - 1, y)) +
-                boolToInt(IsAlive(x + 1, y)) +
-                boolToInt(IsAlive(x - 1, y + 1)) +
-                boolToInt(IsAlive(x, y + 1)) +
-                boolToInt(IsAlive(x + 1, y + 1));
+            return neighbors[y][x];
         }
 
         public void SetWidth(int width)
@@ -95,20 +79,7 @@ namespace game_life
             {
                 throw new ArgumentOutOfRangeException("width");
             }
-            if (width > area[0].Count)
-            {
-                foreach (var row in area)
-                {
-                    row.AddRange(Enumerable.Range(0, width - row.Count).Select(x => CellType.Dead));
-                }
-            }
-            else if (width < area[0].Count)
-            {
-                foreach (var row in area)
-                {
-                    row.RemoveRange(width, Width - width);
-                }
-            }
+            initArea(width, Height);
         }
 
         public void SetHeight(int height)
@@ -117,17 +88,7 @@ namespace game_life
             {
                 throw new ArgumentOutOfRangeException("height");
             }
-            if (height > area.Count)
-            {
-                for (int i = 0; i < height - area.Count; i++)
-                {
-                    area.Add(new List<CellType>(Enumerable.Range(0, Width).Select(x => CellType.Dead)));
-                }
-            }
-            else if (height < area.Count)
-            {
-                area.RemoveRange(area.Count - height - 1, height);
-            }
+            initArea(Width, height);
         }
 
         public void UpdateArea()
@@ -153,9 +114,80 @@ namespace game_life
             }
         }
 
-        private int boolToInt(bool value)
+        public void Clear()
         {
-            return value ? 1 : 0;
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    area[y][x] = CellType.Dead;
+                    neighbors[y][x] = 0;
+                }
+            }
+        }
+        
+        public void FillRandom()
+        {
+            var rand = new Random();
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    var num = rand.Next(0, 2);
+                    SetCell(num == 0 ? CellType.Dead : CellType.Alive, x, y);
+                }
+            }
+        }
+
+        private void updateNeighbors(int x, int y)
+        {
+            var delta = IsAlive(x, y) ? 1 : -1;
+            updateNeighbor(x - 1, y - 1, delta);
+            updateNeighbor(x, y - 1, delta);
+            updateNeighbor(x + 1, y - 1, delta);
+            updateNeighbor(x - 1, y, delta);
+            updateNeighbor(x + 1, y, delta);
+            updateNeighbor(x - 1, y + 1, delta);
+            updateNeighbor(x, y + 1, delta);
+            updateNeighbor(x + 1, y + 1, delta);
+        }
+
+        private void updateNeighbor(int x, int y, int delta)
+        {
+            (x, y) = checkCoords(x, y);
+            neighbors[y][x] += delta;
+        }
+
+        private (int, int) checkCoords(int x, int y)
+        {
+            if (x < 0)
+            {
+                x = Width + x;
+            }
+            else if (x >= Width)
+            {
+                x -= Width;
+            }
+            if (y < 0)
+            {
+                y = Height + y;
+            }
+            else if (y >= Height)
+            {
+                y -= Height;
+            }
+            return (x, y);
+        }
+
+        private void initArea(int width, int height)
+        {
+            area = new List<List<CellType>>(height);
+            neighbors = new List<List<int>>(height);
+            for (int i = 0; i < height; i++)
+            {
+                area.Add(new List<CellType>(Enumerable.Range(0, width).Select(x => CellType.Dead)));
+                neighbors.Add(new List<int>(Enumerable.Range(0, width).Select(x => 0)));
+            }
         }
     }
     class GameLife

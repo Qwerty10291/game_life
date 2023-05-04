@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:game_life"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
-        SizeChanged="Window_SizeChanged">
+        Title="MainWindow" Height="500" Width="800"
+        SizeChanged="Window_SizeChanged"
+        KeyDown="Window_KeyDown">
     <Grid Name="mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
@@ -32,10 +33,11 @@
                 <TextBox Name="areaWidth" Grid.Row="1" Grid.Column="0"></TextBox>
                 <Label Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">высота</Label>
                 <TextBox Name="areaHeight" Grid.Row="1" Grid.Column="1"></TextBox>
-                <Button Name="updateSize" Click="updateSize_Click" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">Установить</Button>
+                <Button Name="updateSize" Click="updateSize_Click" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Focusable="False">Установить</Button>
             </Grid>
-            <Button Name="btnStart" Click="btnStart_Click" Margin="0,20,0,0">Старт</Button>
-            
+            <Button Name="btnStart" Click="btnStart_Click" Margin="0,20,0,0" Focusable="False">Старт</Button>
+            <Button Name="btnClear" Content="Очистить поле" Click="btnClear_Click" Margin="0,5,0,0" Focusable="False"/>
+            <Button Name="btnFillRandom" Content="Залить поле случайно" Click="btnFillRandom_Click" Margin="0,5,0,0" Focusable="False"/>
         </StackPanel>
     </Grid>
 </Window>
