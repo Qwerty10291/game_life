@@ -5,6 +5,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Diagnostics;
+using System.Collections.Generic;
+using Microsoft.Win32;
+using System.IO;
+using System.Linq;
 
 namespace game_life
 {
@@ -140,6 +144,59 @@ namespace game_life
             if (!isRunning)
             {
                 game.Area.FillRandom();
+                gameWidget.Draw();
+            }
+        }
+
+        private void btnSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (isRunning)
+                return;
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Text Files (*.txt)|*.txt";
+            if (dialog.ShowDialog() == true)
+            {
+                using (StreamWriter writer = new StreamWriter(dialog.FileName))
+                {
+                    for (int y = 0; y < game.Area.Height; y++)
+                    {
+                        for (int x = 0; x < game.Area.Width; x++)
+                        {
+                            writer.Write(game.Area.IsAlive(x, y) ? 1 : 0);
+                        }
+                        writer.Write('\n');
+                    }
+                }
+            }
+        }
+
+        private void btnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            if (isRunning)
+            {
+                return;
+            }
+
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Text Files (*.txt)|*.txt";
+            if (dialog.ShowDialog() == true)
+            {
+                var lines = File.ReadAllLines(dialog.FileName);
+                HashSet<int> nums = new HashSet<int>(lines.Select(x => x.Length));
+                if (lines.Length == 0 || nums.Count != 1)
+                {
+                    MessageBox.Show("Неверный формат файла");
+                    return;
+                }
+                game.Area.SetHeight(lines.Length);
+                game.Area.SetWidth(lines[0].Length);
+                for(int y = 0; y < lines.Length; y++)
+                {
+                    for (int x = 0; x < lines[0].Length; x++)
+                    {
+                        game.Area.SetCell(lines[y][x] - '0' == 0? CellType.Dead : CellType.Alive, x, y);
+                    }
+                }
                 gameWidget.Draw();
             }
         }
