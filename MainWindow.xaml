@@ -40,7 +40,6 @@
             <Button Name="btnFillRandom" Content="Залить поле случайно" Click="btnFillRandom_Click" Margin="0,5,0,0" Focusable="False"/>
             <Button Name="btnSave" Content="Сохранить" Click="btnSave_Click"  Margin="0,5,0,0" Focusable="False"/>
             <Button Name="btnLoad" Content="Загрузить" Click="btnLoad_Click" Margin="0,5,0,0" Focusable="False" />
-            <Slider Name="setSpeed1" Minimum="1" Maximum="100" IsSnapToTickEnabled="True" ValueChanged="setSpeed_ValueChanged" SmallChange="1" Value="1"/>
         </StackPanel>
     </Grid>
 </Window>
