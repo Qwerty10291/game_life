@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Globalization;
 
 namespace game_life
 {
@@ -41,23 +39,43 @@ namespace game_life
         {
             var rect = new Rect();
             if (cellSize < 0)
-                updateSize();
+                cellSize = Math.Max((int)Math.Min(ActualWidth, ActualHeight) / Math.Max(area.Width, area.Height), 1);
             rect.Width = cellSize;
             rect.Height = cellSize;
-            var areaStartX = Math.Max(currX / cellSize - 1, 0);
-            var areaStartY = Math.Max(currY / cellSize - 1, 0);
+            var areaStartX = Math.Min(Math.Max((currX > 0 ? currX : 0) / cellSize - 1, 0), area.Width);
+            var areaStartY = Math.Min(Math.Max((currY > 0 ? currY: 0) / cellSize - 1, 0), area.Height);
             var marginX = currX - areaStartX * cellSize;
             var marginY = currY - areaStartY * cellSize;
             var areaEndX = Math.Min(areaStartX + (int)ActualWidth / cellSize + 1, area.Width);
             var areaEndY = Math.Min(areaStartY + (int)ActualHeight / cellSize + 1, area.Height);
+            
             var ctx = canvas.RenderOpen();
+            
+            var deadRect = new Rect(-marginX, -marginY, (areaEndX - areaStartX) * cellSize, (areaEndY - areaStartY) * cellSize);
+            if (deadRect.X + deadRect.Width > ActualWidth)
+            {
+                deadRect.Width = Math.Max(0, ActualWidth - deadRect.X);
+            }
+            ctx.DrawRectangle(deadBrush, null, deadRect);
+
             for (int x = areaStartX; x < areaEndX; x++)
             {
+                rect.X = (x - areaStartX) * cellSize - marginX;
+                if (rect.X > ActualWidth)
+                {
+                    continue;
+                }
                 for (int y = areaStartY; y < areaEndY; y++)
                 {
-                    rect.X = (x - areaStartX) * cellSize - marginX;
-                    rect.Y = (y - areaStartY) * cellSize - marginY;
-                    ctx.DrawRectangle(area[y][x] == CellType.Alive ? aliveBrush : deadBrush, null, rect);
+                    if (area[y][x] == CellType.Alive)
+                    {
+                        rect.Y = (y - areaStartY) * cellSize - marginY;
+                        if (rect.Y > ActualHeight)
+                        {
+                            break;
+                        }
+                        ctx.DrawRectangle(aliveBrush , null, rect);
+                    }
                 }
             }
             ctx.DrawRectangle(null, penBorder, new Rect(0, 0, ActualWidth, ActualHeight));
@@ -86,8 +104,8 @@ namespace game_life
             if (e.MiddleButton == MouseButtonState.Pressed)
             {
                 var p = e.GetPosition(this);
-                currX =(int)Math.Max(currX + (lastMouseX - p.X), 0);
-                currY = (int)Math.Max(currY + (lastMouseY - p.Y), 0);
+                currX = currX + (int)(lastMouseX - p.X);
+                currY = currY + (int)(lastMouseY - p.Y);
                 lastMouseX =(int)p.X;
                 lastMouseY =(int)p.Y;
                 Draw();
@@ -110,10 +128,6 @@ namespace game_life
             Draw();
         }
 
-        private void updateSize()
-        {
-            cellSize = Math.Max((int)Math.Min(ActualWidth, ActualHeight) / Math.Max(area.Width, area.Height), 1);
-        }
 
         protected override int VisualChildrenCount => _children.Count;
 
